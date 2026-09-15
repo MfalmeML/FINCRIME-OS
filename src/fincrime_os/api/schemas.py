@@ -30,6 +30,7 @@ class DecisionResponse(BaseModel):
     transaction_id: str
     decision: Literal["APPROVE", "CHALLENGE", "DECLINE"]
     decision_reason: str
+    graph_degraded: bool
     threshold_table_version: str
     model_versions: Dict[str, str]
     explanation_ref: str
