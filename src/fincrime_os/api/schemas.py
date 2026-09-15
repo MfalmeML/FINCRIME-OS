@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import List, Literal
 
 from pydantic import BaseModel, Field
 
@@ -55,3 +55,18 @@ class DecisionResponse(BaseModel):
     model_versions: dict[str, str]
     explanation_ref: str
     explanation: ExplanationOut
+
+
+class RankedAlertOut(BaseModel):
+    case_id: str
+    expected_loss_prevented: float
+    priority: Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"]
+    rank: int
+
+
+class QueueResponse(BaseModel):
+    generated_at: str
+    capacity: int
+    alerts_considered: int
+    alerts_returned: int
+    ranked: List[RankedAlertOut]
