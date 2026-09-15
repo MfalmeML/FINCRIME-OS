@@ -70,3 +70,36 @@ class QueueResponse(BaseModel):
     alerts_considered: int
     alerts_returned: int
     ranked: List[RankedAlertOut]
+
+
+class DriftRequest(BaseModel):
+    feature_score: float = Field(ge=0.0)
+    prediction_score: float = Field(ge=0.0)
+    graph_score: float = Field(ge=0.0)
+    fraud_rate_multiplier: float = Field(ge=0.0)
+
+
+class DriftSignalOut(BaseModel):
+    component: str
+    score: float
+    threshold: float
+    fired: bool
+
+
+class DriftResponse(BaseModel):
+    any_fired: bool
+    signals: List[DriftSignalOut]
+
+
+class CanaryRequest(BaseModel):
+    component: str
+    candidate_version: str
+    baseline_version: str
+    candidate_fraud_loss: float = Field(ge=0.0)
+    baseline_fraud_loss: float = Field(ge=0.0)
+
+
+class CanaryResponse(BaseModel):
+    component: str
+    result: Literal["PROMOTE", "REJECT", "HOLD"]
+    serving_version: str
