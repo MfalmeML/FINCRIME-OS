@@ -110,3 +110,33 @@ class ReplaySequenceResponse(BaseModel):
     as_of: str
     window_minutes: int
     events: List[dict]
+
+
+class GraphEdgeOut(BaseModel):
+    source: str
+    target: str
+    label: str
+
+
+class CaseGraphOut(BaseModel):
+    root: str
+    nodes: List[str]
+    edges: List[GraphEdgeOut]
+    ring_score: float
+    confirmed_members: int
+
+
+class TimelineEntryOut(BaseModel):
+    occurred_at: str
+    kind: str
+    summary: str
+
+
+class CaseDetailResponse(BaseModel):
+    case_id: str
+    decision: str
+    combined_risk_score: float
+    transaction_amount: float
+    graph: CaseGraphOut
+    timeline: List[TimelineEntryOut]
+    explanation: ExplanationOut
