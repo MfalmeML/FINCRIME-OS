@@ -103,3 +103,10 @@ class CanaryResponse(BaseModel):
     component: str
     result: Literal["PROMOTE", "REJECT", "HOLD"]
     serving_version: str
+
+
+class ReplaySequenceResponse(BaseModel):
+    account_id: str
+    as_of: str
+    window_minutes: int
+    events: List[dict]
