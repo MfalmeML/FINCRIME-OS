@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Env / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Data / artifacts
+data/
+artifacts/
+*.parquet
+*.feather
+*.pkl
+*.joblib
+*.onnx
+*.pt
+*.h5
+*.ckpt
+
+# Logs / runtime
+logs/
+*.log
+*.pid
+*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ML tooling
+mlruns/
+wandb/
+lightning_logs/
