@@ -1,6 +1,8 @@
 from __future__ import annotations
+import logging
+import time
 from datetime import datetime, timezone
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 from fincrime_os.api.schemas import (
     DecisionRequest,
@@ -8,6 +10,7 @@ from fincrime_os.api.schemas import (
     ExplanationOut,
     ReasonCodeOut,
 )
+from fincrime_os.config import default_config
 from fincrime_os.decision_engine.policy import decide
 from fincrime_os.explainability.explainer import Explainer
 from fincrime_os.features.contracts import (
@@ -16,17 +19,54 @@ from fincrime_os.features.contracts import (
     EventSequence,
     GraphFeatures,
 )
+from fincrime_os.logging_config import configure_logging
 from fincrime_os.pipeline import Pipeline
 
-app = FastAPI(title="FINCRIME OS", version="0.0.3")
+configure_logging()
+log = logging.getLogger("fincrime_os.api")
 
-THRESHOLD_TABLE_VERSION = "2026-09-15T00:00Z-v0"
+app = FastAPI(title="FINCRIME OS", version="0.0.4")
+
+CFG = default_config()
 _pipeline = Pipeline()
 _explainer = Explainer()
 
 
 def _now() -> datetime:
     return datetime.now(tz=timezone.utc)
+
+
+@app.middleware("http")
+async def timing_middleware(request: Request, call_next):
+    start = time.perf_counter()
+    response = await call_next(request)
+    elapsed_ms = (time.perf_counter() - start) * 1000.0
+    response.headers["X-Latency-Ms"] = f"{elapsed_ms:.2f}"
+    if request.url.path == "/decision":
+        log.info(
+            "decision_request",
+            extra={"latency_ms": round(elapsed_ms, 2)},
+        )
+    return response
+
+
+@app.get("/health")
+def health() -> dict:
+    return {"status": "ok"}
+
+
+@app.get("/version")
+def version() -> dict:
+    return {
+        "platform_version": app.version,
+        "threshold_table_version": CFG.threshold_table.version,
+        "graph_override": {
+            "ring_score_cutoff": CFG.graph_override.ring_score_cutoff,
+            "min_confirmed_members": CFG.graph_override.min_confirmed_members,
+        },
+        "latency_budget_ms": CFG.latency_budget_ms,
+        "model_versions": _pipeline.model_versions(),
+    }
 
 
 @app.post("/decision", response_model=DecisionResponse)
@@ -69,10 +109,12 @@ def decision(req: DecisionRequest) -> DecisionResponse:
     bundle = _pipeline.score(tx, baseline, sequence, graph_features)
 
     decision, reason = decide(
-        combined_risk_score=req.combined_risk_score,
-        graph_ring_score=req.graph_ring_score,
-        graph_confirmed_members=req.graph_confirmed_members,
+        combined_risk_score=bundle.combined_risk_score,
+        graph_ring_score=bundle.graph_ring_score,
+        graph_confirmed_members=bundle.graph_confirmed_members,
         segment_key=req.segment.customer_tier,
+        graph_cfg=CFG.graph_override,
+        threshold_table=CFG.threshold_table,
     )
 
     explanation = _explainer.build(
@@ -89,12 +131,22 @@ def decision(req: DecisionRequest) -> DecisionResponse:
         transaction_risk=req.transaction_risk,
     )
 
+    log.info(
+        "decision",
+        extra={
+            "transaction_id": req.transaction_id,
+            "decision": decision,
+            "decision_reason": reason,
+            "graph_degraded": bundle.graph_degraded,
+        },
+    )
+
     return DecisionResponse(
         transaction_id=req.transaction_id,
         decision=decision,
         decision_reason=reason,
         graph_degraded=bundle.graph_degraded,
-        threshold_table_version=THRESHOLD_TABLE_VERSION,
+        threshold_table_version=CFG.threshold_table.version,
         model_versions=bundle.model_versions,
         explanation_ref=f"exp_{req.transaction_id}",
         explanation=ExplanationOut(
@@ -113,8 +165,3 @@ def decision(req: DecisionRequest) -> DecisionResponse:
             complete=explanation.complete,
         ),
     )
-
-
-@app.get("/health")
-def health() -> dict:
-    return {"status": "ok"}
