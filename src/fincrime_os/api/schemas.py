@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Literal, Dict
+from typing import Literal, Dict, List
 from pydantic import BaseModel, Field
 
 
@@ -24,6 +24,24 @@ class DecisionRequest(BaseModel):
     segment: Segment
     transaction_amount: float
     currency: str
+    connected_accounts: int = 0
+    confirmed_fraud_neighbors: int = 0
+    customer_avg_amount: float = 0.0
+
+
+class ReasonCodeOut(BaseModel):
+    code: str
+    text: str
+    evidence_value: float | str
+    source: str
+
+
+class ExplanationOut(BaseModel):
+    transaction_id: str
+    decision: str
+    reason_codes: List[ReasonCodeOut]
+    counterfactual: str
+    complete: bool
 
 
 class DecisionResponse(BaseModel):
@@ -34,3 +52,4 @@ class DecisionResponse(BaseModel):
     threshold_table_version: str
     model_versions: Dict[str, str]
     explanation_ref: str
+    explanation: ExplanationOut
