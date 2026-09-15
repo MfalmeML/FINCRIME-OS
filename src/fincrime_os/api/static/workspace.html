@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>FINCRIME OS — Investigator Workspace</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; display: grid;
+         grid-template-columns: 380px 1fr; height: 100vh; }
+  #queue { border-right: 1px solid #ddd; overflow-y: auto; padding: 12px; }
+  #detail { overflow-y: auto; padding: 16px; }
+  .case { padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; }
+  .case:hover { background: #f6f6f6; }
+  .priority { font-weight: 600; font-size: 12px; }
+  .CRITICAL { color: #b00020; }
+  .HIGH { color: #b06000; }
+  .MEDIUM { color: #6b6b00; }
+  .LOW { color: #555; }
+  pre { background: #f6f6f6; padding: 8px; overflow-x: auto; }
+  h1, h2, h3 { margin: 8px 0; }
+  ul { padding-left: 18px; }
+  .edge { font-family: monospace; }
+</style>
+</head>
+<body>
+<div id="queue">
+  <h2>Queue</h2>
+  <div id="list"></div>
+</div>
+<div id="detail">
+  <h1>Select a case</h1>
+  <p>Ranked by expected fraud loss prevented, not raw score.</p>
+</div>
+<script>
+async function loadQueue() {
+  const r = await fetch('/queue');
+  const data = await r.json();
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  for (const a of data.ranked) {
+    const el = document.createElement('div');
+    el.className = 'case';
+    el.innerHTML = `
+      <div class="priority ${a.priority}">${a.priority} — rank ${a.rank}</div>
+      <div><b>${a.case_id}</b></div>
+      <div>expected loss prevented: ${a.expected_loss_prevented.toFixed(2)}</div>
+    `;
+    el.onclick = () => loadCase(a.case_id);
+    list.appendChild(el);
+  }
+}
+async function loadCase(caseId) {
+  const r = await fetch('/case/' + caseId);
+  if (!r.ok) {
+    document.getElementById('detail').innerHTML = `<h1>${caseId}</h1><p>not found</p>`;
+    return;
+  }
+  const c = await r.json();
+  const reasons = c.explanation.reason_codes.map(rc =>
+    `<li>${rc.text} <small>(${rc.source})</small></li>`).join('');
+  const timeline = c.timeline.map(t =>
+    `<li><code>${t.occurred_at}</code> — ${t.kind}: ${t.summary}</li>`).join('');
+  const edges = c.graph.edges.map(e =>
+    `<div class="edge">${e.source} → ${e.target} (${e.label})</div>`).join('');
+  document.getElementById('detail').innerHTML = `
+    <h1>${c.case_id}</h1>
+    <p><b>Decision:</b> ${c.decision} &nbsp; <b>Combined risk:</b> ${c.combined_risk_score}</p>
+    <p><b>Amount:</b> ${c.transaction_amount}</p>
+
+    <h2>Why</h2>
+    <ul>${reasons || '<li>no reason codes (approve)</li>'}</ul>
+    <p><i>${c.explanation.counterfactual}</i></p>
+
+    <h2>Graph</h2>
+    <p>Root: <b>${c.graph.root}</b> &nbsp; ring_score=${c.graph.ring_score} &nbsp; confirmed_members=${c.graph.confirmed_members}</p>
+    <div>${edges || '<i>no edges</i>'}</div>
+
+    <h2>Timeline</h2>
+    <ul>${timeline || '<i>no events</i>'}</ul>
+
+    <h2>Raw</h2>
+    <pre>${JSON.stringify(c, null, 2)}</pre>
+  `;
+}
+loadQueue();
+</script>
+</body>
+</html>
