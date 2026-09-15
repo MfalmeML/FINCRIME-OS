@@ -36,6 +36,15 @@ class Pipeline:
         self.graph = GraphModel()
         self.fusion = FusionModel()
 
+    def model_versions(self) -> dict:
+        return {
+            "transaction_model": self.transaction.version,
+            "behavioral_model": self.behavioral.version,
+            "temporal_model": self.temporal.version,
+            "graph_model": self.graph.version,
+            "fusion_model": self.fusion.version,
+        }
+
     def score(
         self,
         tx: TransactionFeatures,
