@@ -30,7 +30,7 @@ from fincrime_os.pipeline import Pipeline
 configure_logging()
 log = logging.getLogger("fincrime_os.api")
 
-app = FastAPI(title="FINCRIME OS", version="0.0.7")
+app = FastAPI(title="FINCRIME OS", version="0.0.8")
 
 CFG = default_config()
 _pipeline = Pipeline()
@@ -188,3 +188,7 @@ app.include_router(investigation_router)
 from fincrime_os.api.ops_router import router as ops_router  # noqa: E402
 
 app.include_router(ops_router)
+
+from fincrime_os.api.replay_router import router as replay_router  # noqa: E402
+
+app.include_router(replay_router)
