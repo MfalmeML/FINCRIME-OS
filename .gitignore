@@ -44,3 +44,6 @@ Thumbs.db
 mlruns/
 wandb/
 lightning_logs/
+
+state/*/*
+!state/*/.gitkeep
