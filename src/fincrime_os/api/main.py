@@ -30,7 +30,7 @@ from fincrime_os.pipeline import Pipeline
 configure_logging()
 log = logging.getLogger("fincrime_os.api")
 
-app = FastAPI(title="FINCRIME OS", version="0.0.5")
+app = FastAPI(title="FINCRIME OS", version="0.0.6")
 
 CFG = default_config()
 _pipeline = Pipeline()
@@ -179,3 +179,8 @@ def decision(req: DecisionRequest) -> DecisionResponse:
             complete=explanation.complete,
         ),
     )
+
+
+from fincrime_os.api.queue_router import router as investigation_router  # noqa: E402
+
+app.include_router(investigation_router)
