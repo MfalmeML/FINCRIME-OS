@@ -1,5 +1,7 @@
 from __future__ import annotations
-from typing import Literal, Dict, List
+
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -39,7 +41,7 @@ class ReasonCodeOut(BaseModel):
 class ExplanationOut(BaseModel):
     transaction_id: str
     decision: str
-    reason_codes: List[ReasonCodeOut]
+    reason_codes: list[ReasonCodeOut]
     counterfactual: str
     complete: bool
 
@@ -50,6 +52,6 @@ class DecisionResponse(BaseModel):
     decision_reason: str
     graph_degraded: bool
     threshold_table_version: str
-    model_versions: Dict[str, str]
+    model_versions: dict[str, str]
     explanation_ref: str
     explanation: ExplanationOut

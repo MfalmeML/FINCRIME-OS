@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Literal, Tuple
+
+from typing import Literal
 
 from fincrime_os.config import GraphOverrideConfig, ThresholdTable, default_config
 
@@ -21,7 +22,7 @@ def graph_hard_override(
 def lookup_thresholds(
     segment_key: str,
     table: ThresholdTable | None = None,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     table = table or default_config().threshold_table
     return table.lookup(segment_key)
 

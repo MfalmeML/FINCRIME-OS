@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 import logging
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from fastapi import FastAPI, Request
 
 from fincrime_os.api.schemas import (
@@ -14,10 +16,10 @@ from fincrime_os.config import default_config
 from fincrime_os.decision_engine.policy import decide
 from fincrime_os.explainability.explainer import Explainer
 from fincrime_os.features.contracts import (
-    TransactionFeatures,
     BehavioralBaseline,
     EventSequence,
     GraphFeatures,
+    TransactionFeatures,
 )
 from fincrime_os.logging_config import configure_logging
 from fincrime_os.pipeline import Pipeline
@@ -33,7 +35,7 @@ _explainer = Explainer()
 
 
 def _now() -> datetime:
-    return datetime.now(tz=timezone.utc)
+    return datetime.now(tz=UTC)
 
 
 @app.middleware("http")

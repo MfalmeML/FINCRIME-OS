@@ -1,15 +1,16 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
 
+from dataclasses import dataclass
+
+from fincrime_os.explainability.counterfactual import counterfactual_for
 from fincrime_os.explainability.reason_codes import (
     ReasonCode,
     amount_vs_baseline,
+    behavioral_deviation_reason,
     device_connectivity,
     ring_score_reason,
     sequence_pattern_reason,
-    behavioral_deviation_reason,
 )
-from fincrime_os.explainability.counterfactual import counterfactual_for
 
 
 @dataclass(frozen=True)

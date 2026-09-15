@@ -3,15 +3,15 @@ from datetime import datetime, timedelta
 import pytest
 
 from fincrime_os.features.contracts import (
-    TransactionFeatures,
     BehavioralBaseline,
     EventSequence,
     GraphFeatures,
+    TransactionFeatures,
 )
 from fincrime_os.features.point_in_time import (
     PointInTimeViolation,
-    assert_not_future,
     assert_labels_are_mature,
+    assert_not_future,
 )
 from fincrime_os.pipeline import Pipeline
 

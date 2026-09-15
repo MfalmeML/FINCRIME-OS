@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 
 from fincrime_os.investigation.engine import Alert, InvestigationEngine, RankedAlert

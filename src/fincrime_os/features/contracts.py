@@ -1,7 +1,7 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
+
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Optional
 
 
 @dataclass(frozen=True)
@@ -33,7 +33,7 @@ class BehavioralBaseline:
 @dataclass(frozen=True)
 class EventSequence:
     account_id: str
-    events: List[dict]
+    events: list[dict]
     as_of: datetime
 
 

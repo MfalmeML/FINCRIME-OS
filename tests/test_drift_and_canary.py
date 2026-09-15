@@ -1,16 +1,16 @@
-from fincrime_os.drift.detector import DriftDetector
+from fincrime_os.decision_engine.fallbacks import (
+    adaptation_delay,
+    drift_freeze,
+    graph_fallback,
+    threshold_fallback,
+)
 from fincrime_os.drift.canary import (
     CanaryGate,
     CanaryOutcome,
     VersionRegistry,
     apply_gate,
 )
-from fincrime_os.decision_engine.fallbacks import (
-    graph_fallback,
-    threshold_fallback,
-    drift_freeze,
-    adaptation_delay,
-)
+from fincrime_os.drift.detector import DriftDetector
 
 
 def test_drift_fires_on_fraud_rate_spike():

@@ -1,19 +1,19 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Optional
 
 from fincrime_os.features.contracts import (
-    TransactionFeatures,
     BehavioralBaseline,
     EventSequence,
     GraphFeatures,
+    TransactionFeatures,
 )
 from fincrime_os.features.point_in_time import assert_not_future
-from fincrime_os.models.transaction.model import TransactionModel
 from fincrime_os.models.behavioral.model import BehavioralModel
-from fincrime_os.models.temporal.model import TemporalModel
-from fincrime_os.models.graph.model import GraphModel
 from fincrime_os.models.fusion.model import FusionModel
+from fincrime_os.models.graph.model import GraphModel
+from fincrime_os.models.temporal.model import TemporalModel
+from fincrime_os.models.transaction.model import TransactionModel
 
 
 @dataclass
@@ -50,7 +50,7 @@ class Pipeline:
         tx: TransactionFeatures,
         baseline: BehavioralBaseline,
         sequence: EventSequence,
-        graph_features: Optional[GraphFeatures],
+        graph_features: GraphFeatures | None,
     ) -> SignalBundle:
         assert_not_future(baseline.as_of, tx.event_time)
         assert_not_future(sequence.as_of, tx.event_time)
