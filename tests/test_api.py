@@ -30,16 +30,43 @@ def _payload(combined=0.10, ring=0.0, members=0):
 def test_health():
     r = client.get("/health")
     assert r.status_code == 200
+    assert r.json() == {"status": "ok"}
 
 
 def test_decision_approve():
     r = client.post("/decision", json=_payload(0.10))
     assert r.status_code == 200
-    assert r.json()["decision"] == "APPROVE"
+    body = r.json()
+    assert body["decision"] == "APPROVE"
+    assert body["graph_degraded"] is False
+    assert "threshold_table_version" in body
+    assert body["model_versions"]["fusion_model"] == "fusion-dev"
 
 
 def test_decision_graph_override():
     r = client.post("/decision", json=_payload(0.10, ring=0.99, members=5))
     assert r.status_code == 200
-    assert r.json()["decision"] == "DECLINE"
-    assert r.json()["decision_reason"] == "graph_override"
+    body = r.json()
+    assert body["decision"] == "DECLINE"
+    assert body["decision_reason"] == "graph_override"
+
+
+def test_decision_challenge_band():
+    r = client.post("/decision", json=_payload(0.55))
+    assert r.status_code == 200
+    assert r.json()["decision"] == "CHALLENGE"
+
+
+def test_response_shape_is_stable():
+    r = client.post("/decision", json=_payload(0.10))
+    body = r.json()
+    expected_keys = {
+        "transaction_id",
+        "decision",
+        "decision_reason",
+        "graph_degraded",
+        "threshold_table_version",
+        "model_versions",
+        "explanation_ref",
+    }
+    assert set(body.keys()) == expected_keys
