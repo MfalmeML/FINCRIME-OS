@@ -4,6 +4,7 @@ param(
 )
 
 Set-Location $PSScriptRoot
+$env:PYTHONPATH = "$PSScriptRoot\src"
 if (-not (Test-Path ".\.venv\Scripts\Activate.ps1")) {
   Write-Error "venv missing. Create with: python -m venv .venv"
   exit 1
