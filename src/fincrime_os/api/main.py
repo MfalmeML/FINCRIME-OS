@@ -123,9 +123,9 @@ def decision(req: DecisionRequest) -> DecisionResponse:
     bundle = _pipeline.score(tx, baseline, sequence, graph_features)
 
     decision, reason = decide(
-        combined_risk_score=bundle.combined_risk_score,
-        graph_ring_score=bundle.graph_ring_score,
-        graph_confirmed_members=bundle.graph_confirmed_members,
+        combined_risk_score=req.combined_risk_score,
+        graph_ring_score=req.graph_ring_score,
+        graph_confirmed_members=req.graph_confirmed_members,
         segment_key=req.segment.customer_tier,
         graph_cfg=CFG.graph_override,
         threshold_table=CFG.threshold_table,
