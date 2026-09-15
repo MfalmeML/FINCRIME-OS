@@ -1,8 +1,8 @@
 from __future__ import annotations
-
 import logging
 import time
-from datetime import UTC, datetime
+from datetime import datetime, timezone
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 
@@ -16,26 +16,40 @@ from fincrime_os.config import default_config
 from fincrime_os.decision_engine.policy import decide
 from fincrime_os.explainability.explainer import Explainer
 from fincrime_os.features.contracts import (
+    TransactionFeatures,
     BehavioralBaseline,
     EventSequence,
     GraphFeatures,
-    TransactionFeatures,
 )
+from fincrime_os.features.sequence_builder import build_sequence
+from fincrime_os.ingestion.contracts import AccountEvent
+from fincrime_os.ingestion.replay import FileReplaySource
 from fincrime_os.logging_config import configure_logging
 from fincrime_os.pipeline import Pipeline
 
 configure_logging()
 log = logging.getLogger("fincrime_os.api")
 
-app = FastAPI(title="FINCRIME OS", version="0.0.4")
+app = FastAPI(title="FINCRIME OS", version="0.0.5")
 
 CFG = default_config()
 _pipeline = Pipeline()
 _explainer = Explainer()
 
+REPLAY_PATH = Path("data/events.jsonl")
+_REPLAYED: list[AccountEvent] = (
+    list(FileReplaySource(REPLAY_PATH).stream()) if REPLAY_PATH.exists() else []
+)
+
 
 def _now() -> datetime:
-    return datetime.now(tz=UTC)
+    return datetime.now(tz=timezone.utc)
+
+
+def _sequence_for(account_id: str, decision_time: datetime) -> EventSequence:
+    if not _REPLAYED:
+        return EventSequence(account_id=account_id, events=[], as_of=decision_time)
+    return build_sequence(account_id, _REPLAYED, decision_time)
 
 
 @app.middleware("http")
@@ -45,10 +59,7 @@ async def timing_middleware(request: Request, call_next):
     elapsed_ms = (time.perf_counter() - start) * 1000.0
     response.headers["X-Latency-Ms"] = f"{elapsed_ms:.2f}"
     if request.url.path == "/decision":
-        log.info(
-            "decision_request",
-            extra={"latency_ms": round(elapsed_ms, 2)},
-        )
+        log.info("decision_request", extra={"latency_ms": round(elapsed_ms, 2)})
     return response
 
 
@@ -68,6 +79,7 @@ def version() -> dict:
         },
         "latency_budget_ms": CFG.latency_budget_ms,
         "model_versions": _pipeline.model_versions(),
+        "replayed_events": len(_REPLAYED),
     }
 
 
@@ -96,7 +108,7 @@ def decision(req: DecisionRequest) -> DecisionResponse:
         typical_devices=frozenset(),
         as_of=now,
     )
-    sequence = EventSequence(account_id=req.account_id, events=[], as_of=now)
+    sequence = _sequence_for(req.account_id, now)
     graph_features = GraphFeatures(
         account_id=req.account_id,
         device_id=req.device_id,
@@ -111,9 +123,9 @@ def decision(req: DecisionRequest) -> DecisionResponse:
     bundle = _pipeline.score(tx, baseline, sequence, graph_features)
 
     decision, reason = decide(
-        combined_risk_score=req.combined_risk_score,
-        graph_ring_score=req.graph_ring_score,
-        graph_confirmed_members=req.graph_confirmed_members,
+        combined_risk_score=bundle.combined_risk_score,
+        graph_ring_score=bundle.graph_ring_score,
+        graph_confirmed_members=bundle.graph_confirmed_members,
         segment_key=req.segment.customer_tier,
         graph_cfg=CFG.graph_override,
         threshold_table=CFG.threshold_table,
