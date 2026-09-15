@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-
 from fincrime_os.api.main import app
 
 client = TestClient(app)
@@ -14,6 +13,8 @@ def test_version_endpoint():
     assert body["graph_override"]["min_confirmed_members"] == 2
     assert body["latency_budget_ms"] == 100
     assert "fusion_model" in body["model_versions"]
+    assert body["platform_version"] == "0.0.5"
+    assert "replayed_events" in body
 
 
 def test_decision_response_contains_latency_header():
