@@ -1,19 +1,20 @@
 from __future__ import annotations
-
 from dataclasses import dataclass
+from typing import Optional
 
 from fincrime_os.features.contracts import (
+    TransactionFeatures,
     BehavioralBaseline,
     EventSequence,
     GraphFeatures,
-    TransactionFeatures,
 )
 from fincrime_os.features.point_in_time import assert_not_future
-from fincrime_os.models.behavioral.model import BehavioralModel
-from fincrime_os.models.fusion.model import FusionModel
-from fincrime_os.models.graph.model import GraphModel
-from fincrime_os.models.temporal.model import TemporalModel
 from fincrime_os.models.transaction.model import TransactionModel
+from fincrime_os.models.behavioral.model import BehavioralModel
+from fincrime_os.models.temporal.model import TemporalModel
+from fincrime_os.models.graph.model import GraphModel
+from fincrime_os.models.fusion.model import FusionModel
+from fincrime_os.state.model_registry import ModelRegistry, load_registry
 
 
 @dataclass
@@ -29,28 +30,23 @@ class SignalBundle:
 
 
 class Pipeline:
-    def __init__(self) -> None:
-        self.transaction = TransactionModel()
-        self.behavioral = BehavioralModel()
-        self.temporal = TemporalModel()
-        self.graph = GraphModel()
-        self.fusion = FusionModel()
+    def __init__(self, registry: ModelRegistry | None = None) -> None:
+        self.registry = registry or load_registry()
+        self.transaction = TransactionModel(version=self.registry.get("transaction_model"))
+        self.behavioral = BehavioralModel(version=self.registry.get("behavioral_model"))
+        self.temporal = TemporalModel(version=self.registry.get("temporal_model"))
+        self.graph = GraphModel(version=self.registry.get("graph_model"))
+        self.fusion = FusionModel(version=self.registry.get("fusion_model"))
 
     def model_versions(self) -> dict:
-        return {
-            "transaction_model": self.transaction.version,
-            "behavioral_model": self.behavioral.version,
-            "temporal_model": self.temporal.version,
-            "graph_model": self.graph.version,
-            "fusion_model": self.fusion.version,
-        }
+        return self.registry.as_dict()
 
     def score(
         self,
         tx: TransactionFeatures,
         baseline: BehavioralBaseline,
         sequence: EventSequence,
-        graph_features: GraphFeatures | None,
+        graph_features: Optional[GraphFeatures],
     ) -> SignalBundle:
         assert_not_future(baseline.as_of, tx.event_time)
         assert_not_future(sequence.as_of, tx.event_time)
@@ -78,11 +74,5 @@ class Pipeline:
             graph_confirmed_members=members,
             combined_risk_score=combined,
             graph_degraded=graph_degraded,
-            model_versions={
-                "transaction_model": self.transaction.version,
-                "behavioral_model": self.behavioral.version,
-                "temporal_model": self.temporal.version,
-                "graph_model": self.graph.version,
-                "fusion_model": self.fusion.version,
-            },
+            model_versions=self.registry.as_dict(),
         )
