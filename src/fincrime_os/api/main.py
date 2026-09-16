@@ -76,6 +76,7 @@ def version() -> dict:
     return {
         "platform_version": app.version,
         "threshold_table_version": CFG.threshold_table.version,
+        "graph_snapshot_version": _graph_snapshot.version,
         "graph_override": {
             "ring_score_cutoff": CFG.graph_override.ring_score_cutoff,
             "min_confirmed_members": CFG.graph_override.min_confirmed_members,
