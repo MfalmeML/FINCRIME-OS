@@ -30,11 +30,14 @@ from fincrime_os.pipeline import Pipeline
 configure_logging()
 log = logging.getLogger("fincrime_os.api")
 
-app = FastAPI(title="FINCRIME OS", version="0.1.0")
+app = FastAPI(title="FINCRIME OS", version="0.1.1")
+
+from fincrime_os.state.graph_snapshot import load_snapshot  # noqa: E402
 
 CFG = default_config()
 _pipeline = Pipeline()
 _explainer = Explainer()
+_graph_snapshot = load_snapshot()
 
 REPLAY_PATH = Path("data/events.jsonl")
 _REPLAYED: list[AccountEvent] = (
@@ -109,14 +112,28 @@ def decision(req: DecisionRequest) -> DecisionResponse:
         as_of=now,
     )
     sequence = _sequence_for(req.account_id, now)
+    snapshot_row = _graph_snapshot.for_account(req.account_id)
+
+    def _prefer(request_val, snapshot_val):
+        return request_val if request_val else snapshot_val
+
+    connected_accounts = _prefer(req.connected_accounts, snapshot_row["connected_accounts"])
+    confirmed_fraud_neighbors = _prefer(
+        req.confirmed_fraud_neighbors, snapshot_row["confirmed_fraud_neighbors"]
+    )
+    graph_ring_score = _prefer(req.graph_ring_score, snapshot_row["graph_ring_score"])
+    graph_confirmed_members = _prefer(
+        req.graph_confirmed_members, snapshot_row["graph_confirmed_members"]
+    )
+
     graph_features = GraphFeatures(
         account_id=req.account_id,
         device_id=req.device_id,
-        connected_accounts=req.connected_accounts,
-        confirmed_fraud_neighbors=req.confirmed_fraud_neighbors,
-        graph_ring_score=req.graph_ring_score,
-        graph_confirmed_members=req.graph_confirmed_members,
-        graph_snapshot_version="api-stub",
+        connected_accounts=connected_accounts,
+        confirmed_fraud_neighbors=confirmed_fraud_neighbors,
+        graph_ring_score=graph_ring_score,
+        graph_confirmed_members=graph_confirmed_members,
+        graph_snapshot_version=snapshot_row["graph_snapshot_version"],
         as_of=now,
     )
 
