@@ -30,7 +30,7 @@ from fincrime_os.pipeline import Pipeline
 configure_logging()
 log = logging.getLogger("fincrime_os.api")
 
-app = FastAPI(title="FINCRIME OS", version="0.0.9")
+app = FastAPI(title="FINCRIME OS", version="0.1.0")
 
 CFG = default_config()
 _pipeline = Pipeline()
