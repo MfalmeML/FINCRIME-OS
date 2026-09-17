@@ -18,6 +18,7 @@ from fincrime_os.drift.canary import (
     apply_gate,
 )
 from fincrime_os.drift.detector import DriftDetector
+from fincrime_os.drift.snapshot_loader import load_drift_snapshot
 
 router = APIRouter(tags=["ops"])
 
@@ -51,6 +52,31 @@ def drift_check(req: DriftRequest) -> DriftResponse:
     )
     return DriftResponse(
         any_fired=_detector.any_fired(signals),
+        signals=[
+            DriftSignalOut(
+                component=s.component,
+                score=s.score,
+                threshold=s.threshold,
+                fired=s.fired,
+            )
+            for s in signals
+        ],
+    )
+
+
+@router.get("/drift/current", response_model=DriftResponse)
+def drift_current() -> DriftResponse:
+    snapshot = load_drift_snapshot()
+    if snapshot is None:
+        return DriftResponse(any_fired=False, signals=[])
+    signals = _detector.check(
+        feature_score=snapshot.feature_score,
+        prediction_score=snapshot.prediction_score,
+        graph_score=snapshot.graph_score,
+        fraud_rate_multiplier=snapshot.fraud_rate_multiplier,
+    )
+    return DriftResponse(
+        any_fired=snapshot.any_fired or _detector.any_fired(signals),
         signals=[
             DriftSignalOut(
                 component=s.component,
