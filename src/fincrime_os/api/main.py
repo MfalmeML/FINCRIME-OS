@@ -25,6 +25,7 @@ from fincrime_os.features.sequence_builder import build_sequence
 from fincrime_os.ingestion.contracts import AccountEvent
 from fincrime_os.ingestion.replay import FileReplaySource
 from fincrime_os.logging_config import configure_logging
+from fincrime_os.monitoring.runtime_metrics import get_metrics  # noqa: E402
 from fincrime_os.pipeline import Pipeline
 
 configure_logging()
@@ -139,6 +140,7 @@ def decision(req: DecisionRequest) -> DecisionResponse:
     )
 
     bundle = _pipeline.score(tx, baseline, sequence, graph_features)
+    get_metrics().record_decision(graph_degraded=bundle.graph_degraded)
 
     decision, reason = decide(
         combined_risk_score=req.combined_risk_score,
