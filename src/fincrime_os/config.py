@@ -12,6 +12,11 @@ class GraphOverrideConfig:
 
 
 @dataclass(frozen=True)
+class GraphFreshnessConfig:
+    max_snapshot_age_seconds: int = 3600
+
+
+@dataclass(frozen=True)
 class DriftConfig:
     feature_threshold: float = 0.20
     prediction_threshold: float = 0.20
@@ -33,6 +38,7 @@ class ThresholdTable:
 @dataclass(frozen=True)
 class PlatformConfig:
     graph_override: GraphOverrideConfig = GraphOverrideConfig()
+    graph_freshness: GraphFreshnessConfig = GraphFreshnessConfig()
     drift: DriftConfig = DriftConfig()
     threshold_table: ThresholdTable = ThresholdTable(version="unversioned-dev")
     latency_budget_ms: int = 100
