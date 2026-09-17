@@ -47,3 +47,4 @@ lightning_logs/
 
 state/*/*
 !state/*/.gitkeep
+state/outcomes/
