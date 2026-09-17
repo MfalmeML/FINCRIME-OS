@@ -155,6 +155,8 @@ class OutcomeSubmission(BaseModel):
     investigation_outcome: Literal[
         "confirmed_fraud", "false_positive", "inconclusive"
     ] | None = None
+    transaction_amount: float | None = None
+    segment: dict | None = None
 
 
 class OutcomeAck(BaseModel):
