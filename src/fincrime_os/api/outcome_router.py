@@ -42,6 +42,8 @@ def submit_outcome(req: OutcomeSubmission) -> OutcomeAck:
         is_false_decline=req.is_false_decline,
         churned_after_decline=req.churned_after_decline,
         investigation_outcome=inv,
+        transaction_amount=req.transaction_amount,
+        segment=req.segment,
     )
     path = append_outcome(record)
     return OutcomeAck(transaction_id=req.transaction_id, stored_path=str(path))
