@@ -175,3 +175,26 @@ class CostInputsOut(BaseModel):
     p_churn_given_decline: float
     avg_transaction_amount: float
     confirmed_fraud_rate: float
+
+
+class SegmentQualityOut(BaseModel):
+    segment_key: str
+    total_outcomes: int
+    approves: int
+    declines_and_challenges: int
+    missed_detections: int
+    detection_miss_rate: float
+    false_declines: int
+    false_decline_rate: float
+    churn_after_decline: int
+    churn_rate: float
+
+
+class QualityResponse(BaseModel):
+    available: bool
+    version: str | None = None
+    window_days: int = 0
+    total_outcomes: int = 0
+    overall_miss_rate: float = 0.0
+    overall_false_decline_rate: float = 0.0
+    segments: List[SegmentQualityOut] = []
