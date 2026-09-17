@@ -1,4 +1,7 @@
 from __future__ import annotations
+from datetime import datetime, timezone
+from pathlib import Path
+
 from fastapi import APIRouter
 
 from fincrime_os.api.schemas import (
@@ -19,6 +22,10 @@ from fincrime_os.drift.canary import (
 )
 from fincrime_os.drift.detector import DriftDetector
 from fincrime_os.drift.snapshot_loader import load_drift_snapshot
+from fincrime_os.monitoring.runtime_metrics import get_metrics
+from fincrime_os.state.graph_snapshot import is_fresh, load_snapshot, snapshot_age_seconds
+from fincrime_os.state.loader import STATE_ROOT, load_latest
+from fincrime_os.state.model_registry import load_registry
 
 router = APIRouter(tags=["ops"])
 
@@ -122,3 +129,71 @@ def cost_inputs() -> CostInputsOut:
         avg_transaction_amount=c.avg_transaction_amount,
         confirmed_fraud_rate=c.confirmed_fraud_rate,
     )
+
+
+def _artifact_age_seconds(kind: str) -> float | None:
+    artifact = load_latest(kind)
+    if artifact is None:
+        return None
+    path = Path(artifact.path)
+    if not path.exists():
+        return None
+    mtime = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+    return (datetime.now(tz=timezone.utc) - mtime).total_seconds()
+
+
+@router.get("/health/deep")
+def health_deep() -> dict:
+    cfg = default_config()
+    registry = load_registry()
+    cost = load_cost_inputs()
+    drift = load_drift_snapshot()
+    graph = load_snapshot()
+    metrics = get_metrics().snapshot()
+
+    threshold_artifact = load_latest("threshold_tables")
+    cost_artifact = load_latest("cost_model_inputs")
+    drift_artifact = load_latest("drift_signals")
+
+    return {
+        "status": "ok",
+        "artifacts": {
+            "threshold_tables": {
+                "available": threshold_artifact is not None,
+                "version": threshold_artifact.version if threshold_artifact else None,
+                "age_seconds": _artifact_age_seconds("threshold_tables"),
+            },
+            "model_versions": {
+                "available": load_latest("model_versions") is not None,
+                "version": registry.version,
+            },
+            "graph_snapshots": {
+                "available": graph.version != "unversioned-dev",
+                "version": graph.version,
+                "age_seconds": snapshot_age_seconds(graph.version),
+                "fresh": is_fresh(
+                    graph.version,
+                    cfg.graph_freshness.max_snapshot_age_seconds,
+                ),
+                "max_age_seconds": cfg.graph_freshness.max_snapshot_age_seconds,
+            },
+            "cost_model_inputs": {
+                "available": cost_artifact is not None,
+                "version": cost.version,
+                "age_seconds": _artifact_age_seconds("cost_model_inputs"),
+            },
+            "drift_signals": {
+                "available": drift_artifact is not None,
+                "version": drift.version if drift else None,
+                "age_seconds": _artifact_age_seconds("drift_signals"),
+                "any_fired": drift.any_fired if drift else False,
+            },
+        },
+        "runtime": {
+            "graph_degraded_rate": metrics["graph_degraded_rate"],
+            "graph_degraded_count": metrics["graph_degraded"],
+            "decisions_in_window": metrics["decisions"],
+            "window_seconds": metrics["window_seconds"],
+        },
+        "state_root": str(STATE_ROOT),
+    }
