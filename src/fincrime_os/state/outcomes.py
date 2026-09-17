@@ -27,6 +27,8 @@ class OutcomeRecord:
     is_false_decline: Optional[bool] = None
     churned_after_decline: Optional[bool] = None
     investigation_outcome: Optional[InvestigationOutcome] = None
+    transaction_amount: float | None = None
+    segment: dict | None = None
 
     def to_json(self) -> str:
         d = asdict(self)
