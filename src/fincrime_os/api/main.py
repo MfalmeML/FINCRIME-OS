@@ -31,7 +31,7 @@ from fincrime_os.pipeline import Pipeline
 configure_logging()
 log = logging.getLogger("fincrime_os.api")
 
-app = FastAPI(title="FINCRIME OS", version="0.2.3")
+app = FastAPI(title="FINCRIME OS", version="0.3.1")
 
 from fincrime_os.state.graph_snapshot import load_snapshot  # noqa: E402
 
