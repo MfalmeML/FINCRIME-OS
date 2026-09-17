@@ -4,11 +4,13 @@ from fastapi import APIRouter
 from fincrime_os.api.schemas import (
     CanaryRequest,
     CanaryResponse,
+    CostInputsOut,
     DriftRequest,
     DriftResponse,
     DriftSignalOut,
 )
 from fincrime_os.config import default_config
+from fincrime_os.decision_engine.cost_loader import load_cost_inputs
 from fincrime_os.drift.canary import (
     CanaryGate,
     CanaryOutcome,
@@ -76,4 +78,21 @@ def canary_evaluate(req: CanaryRequest) -> CanaryResponse:
         component=req.component,
         result=result,
         serving_version=serving,
+    )
+
+
+@router.get("/cost/inputs", response_model=CostInputsOut)
+def cost_inputs() -> CostInputsOut:
+    c = load_cost_inputs()
+    return CostInputsOut(
+        version=c.version,
+        window_days=c.window_days,
+        total_outcomes=c.total_outcomes,
+        declines_observed=c.declines_observed,
+        false_declines=c.false_declines,
+        churned_after_decline=c.churned_after_decline,
+        p_false_decline=c.p_false_decline,
+        p_churn_given_decline=c.p_churn_given_decline,
+        avg_transaction_amount=c.avg_transaction_amount,
+        confirmed_fraud_rate=c.confirmed_fraud_rate,
     )
