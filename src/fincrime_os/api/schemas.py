@@ -140,3 +140,23 @@ class CaseDetailResponse(BaseModel):
     graph: CaseGraphOut
     timeline: List[TimelineEntryOut]
     explanation: ExplanationOut
+
+
+class OutcomeSubmission(BaseModel):
+    transaction_id: str
+    account_id: str
+    decision: Literal["APPROVE", "CHALLENGE", "DECLINE"]
+    decided_at: str
+    observed_at: str
+    is_fraud: bool | None = None
+    is_ring_member: bool | None = None
+    is_false_decline: bool | None = None
+    churned_after_decline: bool | None = None
+    investigation_outcome: Literal[
+        "confirmed_fraud", "false_positive", "inconclusive"
+    ] | None = None
+
+
+class OutcomeAck(BaseModel):
+    transaction_id: str
+    stored_path: str
