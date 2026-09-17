@@ -160,3 +160,16 @@ class OutcomeSubmission(BaseModel):
 class OutcomeAck(BaseModel):
     transaction_id: str
     stored_path: str
+
+
+class CostInputsOut(BaseModel):
+    version: str
+    window_days: int
+    total_outcomes: int
+    declines_observed: int
+    false_declines: int
+    churned_after_decline: int
+    p_false_decline: float
+    p_churn_given_decline: float
+    avg_transaction_amount: float
+    confirmed_fraud_rate: float
