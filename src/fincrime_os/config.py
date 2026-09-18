@@ -1,6 +1,6 @@
 from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Tuple
 
 from fincrime_os.state.loader import load_latest
 
@@ -34,11 +34,11 @@ class DriftConfig:
 @dataclass(frozen=True)
 class ThresholdTable:
     version: str
-    entries: dict[str, Tuple[float, float]] = field(
+    entries: dict[str, tuple[float, float]] = field(
         default_factory=lambda: {"default": (0.40, 0.75)}
     )
 
-    def lookup(self, segment_key: str) -> Tuple[float, float]:
+    def lookup(self, segment_key: str) -> tuple[float, float]:
         return self.entries.get(segment_key, self.entries["default"])
 
 

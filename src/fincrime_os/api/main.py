@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 import logging
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -16,10 +17,10 @@ from fincrime_os.config import default_config
 from fincrime_os.decision_engine.policy import decide
 from fincrime_os.explainability.explainer import Explainer
 from fincrime_os.features.contracts import (
-    TransactionFeatures,
     BehavioralBaseline,
     EventSequence,
     GraphFeatures,
+    TransactionFeatures,
 )
 from fincrime_os.features.sequence_builder import build_sequence
 from fincrime_os.ingestion.contracts import AccountEvent
@@ -47,7 +48,7 @@ _REPLAYED: list[AccountEvent] = (
 
 
 def _now() -> datetime:
-    return datetime.now(tz=timezone.utc)
+    return datetime.now(tz=UTC)
 
 
 def _sequence_for(account_id: str, decision_time: datetime) -> EventSequence:
@@ -218,6 +219,7 @@ from fincrime_os.api.outcome_router import router as outcome_router  # noqa: E40
 app.include_router(outcome_router)
 
 from fastapi.responses import FileResponse  # noqa: E402
+
 from fincrime_os.api.case_router import router as case_router  # noqa: E402
 
 app.include_router(case_router)
