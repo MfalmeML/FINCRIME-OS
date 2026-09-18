@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from fincrime_os.features.sequence_builder import build_sequence
 from fincrime_os.ingestion.contracts import AccountEvent
 
-T0 = datetime(2026, 9, 15, 2, 13, tzinfo=timezone.utc)
+T0 = datetime(2026, 9, 15, 2, 13, tzinfo=UTC)
 
 
 def _evt(eid, kind, minutes_before, account="cust_1"):

@@ -1,11 +1,10 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import fincrime_os.state.loader as loader
 from fincrime_os.drift.outcome_drift import compute_outcome_drift
 from fincrime_os.drift.snapshot_loader import load_drift_snapshot
 
-
-BASE = datetime(2026, 9, 1, tzinfo=timezone.utc)
+BASE = datetime(2026, 9, 1, tzinfo=UTC)
 
 
 def _row(i, is_fraud, is_false_decline=False):

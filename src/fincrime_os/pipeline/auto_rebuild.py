@@ -1,9 +1,9 @@
 from __future__ import annotations
+
 import os
 from dataclasses import dataclass, field
 from threading import Lock
 from time import monotonic
-
 
 AUTO_REBUILD_ENV = "FINCRIME_AUTO_REBUILD"
 

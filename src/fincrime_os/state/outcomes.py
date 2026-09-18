@@ -1,10 +1,10 @@
 from __future__ import annotations
-from dataclasses import dataclass, asdict
+
+import json
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Literal, Optional
-import json
 
 OUTCOMES_ROOT = Path(__file__).resolve().parents[3] / "state" / "outcomes"
 
@@ -22,11 +22,11 @@ class OutcomeRecord:
     decision: str
     decided_at: datetime
     observed_at: datetime
-    is_fraud: Optional[bool] = None
-    is_ring_member: Optional[bool] = None
-    is_false_decline: Optional[bool] = None
-    churned_after_decline: Optional[bool] = None
-    investigation_outcome: Optional[InvestigationOutcome] = None
+    is_fraud: bool | None = None
+    is_ring_member: bool | None = None
+    is_false_decline: bool | None = None
+    churned_after_decline: bool | None = None
+    investigation_outcome: InvestigationOutcome | None = None
     transaction_amount: float | None = None
     segment: dict | None = None
 

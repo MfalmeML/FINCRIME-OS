@@ -1,8 +1,8 @@
 from __future__ import annotations
+
 from dataclasses import dataclass, field
 
 from fincrime_os.state.loader import load_latest
-
 
 DEFAULT_MODELS: dict[str, str] = {
     "transaction_model": "txn-dev",

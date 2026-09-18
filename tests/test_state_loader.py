@@ -1,4 +1,3 @@
-from pathlib import Path
 
 import fincrime_os.state.loader as loader
 from fincrime_os.state.loader import load_latest, load_version, publish

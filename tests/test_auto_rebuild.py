@@ -1,4 +1,5 @@
-import os
+
+from datetime import UTC
 
 import fincrime_os.state.loader as loader
 import fincrime_os.state.outcomes as outcomes_mod
@@ -12,6 +13,7 @@ from fincrime_os.pipeline.rebuild import rebuild_all
 def _write_outcome(rows_mod_path, day: str, record: dict) -> None:
     import json
     path = rows_mod_path / f"{day}.jsonl"
+    path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(record) + "\n")
 
@@ -61,8 +63,9 @@ def test_rebuild_all_publishes_artifacts(tmp_path, monkeypatch):
     )
 
     # Override today so _read_window picks up our test day
-    import fincrime_os.pipeline.rebuild as rebuild_mod
     from datetime import date as _date
+
+    import fincrime_os.pipeline.rebuild as rebuild_mod
 
     class _FixedDate(_date):
         @classmethod
@@ -73,8 +76,8 @@ def test_rebuild_all_publishes_artifacts(tmp_path, monkeypatch):
         "now": staticmethod(lambda tz=None: __import__("datetime").datetime(2026, 9, 18, tzinfo=tz))
     }))
     # Simpler: force window day by directly writing today's date file too.
-    from datetime import datetime, timezone
-    today = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
+    from datetime import datetime
+    today = datetime.now(tz=UTC).strftime("%Y-%m-%d")
     _write_outcome(
         outcomes_mod.OUTCOMES_ROOT,
         today,

@@ -1,14 +1,15 @@
 from __future__ import annotations
-from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
 
-from fincrime_os.decision_engine.cost_model import build_inputs
+from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
+
 from fincrime_os.decision_engine.cost_model import as_dict as cost_dict
+from fincrime_os.decision_engine.cost_model import build_inputs
 from fincrime_os.decision_engine.optimizer import optimize_all
-from fincrime_os.drift.outcome_drift import compute_outcome_drift
 from fincrime_os.drift.outcome_drift import as_dict as drift_dict
-from fincrime_os.monitoring.quality import build_report
+from fincrime_os.drift.outcome_drift import compute_outcome_drift
 from fincrime_os.monitoring.quality import as_dict as quality_dict
+from fincrime_os.monitoring.quality import build_report
 from fincrime_os.state.loader import publish
 from fincrime_os.state.outcomes import read_outcomes
 
@@ -22,7 +23,7 @@ class RebuildResult:
 
 
 def _read_window(days: int) -> list[dict]:
-    today = datetime.now(tz=timezone.utc).date()
+    today = datetime.now(tz=UTC).date()
     rows: list[dict] = []
     for offset in range(days):
         day = (today - timedelta(days=offset)).strftime("%Y-%m-%d")
@@ -31,7 +32,7 @@ def _read_window(days: int) -> list[dict]:
 
 
 def rebuild_all(window_days: int, version: str | None = None) -> RebuildResult:
-    version = version or datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
+    version = version or datetime.now(tz=UTC).strftime("%Y-%m-%dT%H-%M-%SZ")
     rows = _read_window(window_days)
 
     cost = build_inputs(rows, version=version, window_days=window_days)

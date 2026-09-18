@@ -6,7 +6,6 @@ import fincrime_os.state.loader as loader
 from fincrime_os.state.graph_snapshot import load_snapshot
 from fincrime_os.state.model_registry import load_registry
 
-
 KINDS = ["threshold_tables", "graph_snapshots", "model_versions"]
 
 

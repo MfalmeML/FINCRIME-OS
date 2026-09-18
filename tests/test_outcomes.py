@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -8,7 +8,7 @@ from fincrime_os.api.main import app
 
 client = TestClient(app)
 
-T_DECIDED = datetime(2026, 9, 15, 12, 0, tzinfo=timezone.utc)
+T_DECIDED = datetime(2026, 9, 15, 12, 0, tzinfo=UTC)
 
 
 @pytest.fixture

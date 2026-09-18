@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+
 from fincrime_os.api.main import app
 
 client = TestClient(app)

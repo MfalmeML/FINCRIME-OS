@@ -6,7 +6,6 @@ from fincrime_os.api.schemas import (
     Segment,
 )
 
-
 DECISION_REQUEST_FIELDS = {
     "transaction_id",
     "account_id",

@@ -1,6 +1,5 @@
 import json
-from datetime import datetime, timedelta, timezone
-from pathlib import Path
+from datetime import UTC, datetime, timedelta
 
 from fastapi.testclient import TestClient
 
@@ -11,7 +10,7 @@ client = TestClient(app)
 
 
 def test_replay_returns_filtered_sequence(tmp_path, monkeypatch):
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     rows = [
         {
             "event_id": "e1",

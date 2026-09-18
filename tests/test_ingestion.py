@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fincrime_os.ingestion.replay import FileReplaySource
@@ -12,14 +12,14 @@ def _write(tmp_path: Path) -> Path:
             "event_id": "evt_1",
             "account_id": "cust_1",
             "kind": "login",
-            "occurred_at": datetime(2026, 9, 15, 1, 51, tzinfo=timezone.utc).isoformat(),
+            "occurred_at": datetime(2026, 9, 15, 1, 51, tzinfo=UTC).isoformat(),
             "payload": {"device_id": "D1"},
         },
         {
             "event_id": "evt_2",
             "account_id": "cust_1",
             "kind": "transfer",
-            "occurred_at": datetime(2026, 9, 15, 1, 57, tzinfo=timezone.utc).isoformat(),
+            "occurred_at": datetime(2026, 9, 15, 1, 57, tzinfo=UTC).isoformat(),
             "payload": {"amount": 8700},
         },
     ]
