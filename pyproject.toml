@@ -3,6 +3,15 @@ name = "fincrime-os"
 version = "0.0.4"
 description = "Autonomous Real-Time Financial Crime Intelligence & Adaptive Decision Platform"
 requires-python = ">=3.11"
+dependencies = [
+	"fastapi",
+	"uvicorn",
+	"pydantic",
+	"numpy",
+	"pandas",
+	"scikit-learn",
+	"joblib",
+]
 
 [tool.ruff]
 line-length = 100
