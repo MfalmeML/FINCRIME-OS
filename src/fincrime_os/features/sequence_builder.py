@@ -1,10 +1,10 @@
 from __future__ import annotations
+
+from collections.abc import Iterable
 from datetime import datetime, timedelta
-from typing import Iterable
 
 from fincrime_os.features.contracts import EventSequence
 from fincrime_os.ingestion.contracts import AccountEvent
-
 
 DEFAULT_WINDOW_MINUTES = 60
 
