@@ -14,9 +14,9 @@ class RuntimeMetrics:
 
     def _prune(self, now: float) -> None:
         cutoff = now - self.window_seconds
-        while self._decisions and self._decisions[0] < cutoff:
+        while self._decisions and self._decisions[0] <= cutoff:
             self._decisions.popleft()
-        while self._graph_degraded and self._graph_degraded[0] < cutoff:
+        while self._graph_degraded and self._graph_degraded[0] <= cutoff:
             self._graph_degraded.popleft()
 
     def record_decision(self, graph_degraded: bool) -> None:
