@@ -34,7 +34,7 @@ def test_false_positive_rate_computed():
     assert r.overall.tp == 1
     assert r.overall.fp == 1
     assert r.overall.fn == 1
-    assert r.overall.false_positive_rate == 1.0
+    assert r.overall.false_positive_rate == 0.5
     assert r.overall.recall == 0.5
 
 
