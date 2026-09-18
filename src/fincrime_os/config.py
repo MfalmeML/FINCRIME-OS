@@ -17,6 +17,13 @@ class GraphFreshnessConfig:
 
 
 @dataclass(frozen=True)
+class AutoRebuildConfig:
+    enabled: bool = True
+    window_days: int = 30
+    min_interval_seconds: float = 30.0
+
+
+@dataclass(frozen=True)
 class DriftConfig:
     feature_threshold: float = 0.20
     prediction_threshold: float = 0.20
@@ -39,6 +46,7 @@ class ThresholdTable:
 class PlatformConfig:
     graph_override: GraphOverrideConfig = GraphOverrideConfig()
     graph_freshness: GraphFreshnessConfig = GraphFreshnessConfig()
+    auto_rebuild: AutoRebuildConfig = AutoRebuildConfig()
     drift: DriftConfig = DriftConfig()
     threshold_table: ThresholdTable = ThresholdTable(version="unversioned-dev")
     latency_budget_ms: int = 100
