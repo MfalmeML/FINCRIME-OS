@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from fincrime_os.monitoring.quality import QualityReport, SegmentQuality
 from fincrime_os.state.loader import load_latest
 
