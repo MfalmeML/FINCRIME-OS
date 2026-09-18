@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from fincrime_os.drift.outcome_drift import OutcomeDriftSnapshot
 from fincrime_os.state.loader import load_latest
 
