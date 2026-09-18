@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from fastapi import APIRouter, HTTPException
 
 from fincrime_os.api.schemas import (

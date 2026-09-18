@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Literal
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -69,7 +69,7 @@ class QueueResponse(BaseModel):
     capacity: int
     alerts_considered: int
     alerts_returned: int
-    ranked: List[RankedAlertOut]
+    ranked: list[RankedAlertOut]
 
 
 class DriftRequest(BaseModel):
@@ -88,7 +88,7 @@ class DriftSignalOut(BaseModel):
 
 class DriftResponse(BaseModel):
     any_fired: bool
-    signals: List[DriftSignalOut]
+    signals: list[DriftSignalOut]
 
 
 class CanaryRequest(BaseModel):
@@ -109,7 +109,7 @@ class ReplaySequenceResponse(BaseModel):
     account_id: str
     as_of: str
     window_minutes: int
-    events: List[dict]
+    events: list[dict]
 
 
 class GraphEdgeOut(BaseModel):
@@ -120,8 +120,8 @@ class GraphEdgeOut(BaseModel):
 
 class CaseGraphOut(BaseModel):
     root: str
-    nodes: List[str]
-    edges: List[GraphEdgeOut]
+    nodes: list[str]
+    edges: list[GraphEdgeOut]
     ring_score: float
     confirmed_members: int
 
@@ -138,7 +138,7 @@ class CaseDetailResponse(BaseModel):
     combined_risk_score: float
     transaction_amount: float
     graph: CaseGraphOut
-    timeline: List[TimelineEntryOut]
+    timeline: list[TimelineEntryOut]
     explanation: ExplanationOut
 
 
@@ -197,4 +197,4 @@ class QualityResponse(BaseModel):
     total_outcomes: int = 0
     overall_miss_rate: float = 0.0
     overall_false_decline_rate: float = 0.0
-    segments: List[SegmentQualityOut] = []
+    segments: list[SegmentQualityOut] = []

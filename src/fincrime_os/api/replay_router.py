@@ -1,5 +1,7 @@
 from __future__ import annotations
-from datetime import datetime, timezone
+
+from datetime import UTC, datetime
+from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Query
 
@@ -9,7 +11,6 @@ from fincrime_os.features.sequence_builder import (
     build_sequence,
 )
 from fincrime_os.ingestion.replay import FileReplaySource
-from pathlib import Path
 
 router = APIRouter(tags=["replay"])
 
@@ -30,7 +31,7 @@ def replay_sequence(
     events = _load_events()
     if not events:
         raise HTTPException(status_code=404, detail="no replayed events available")
-    decision_time = datetime.now(tz=timezone.utc)
+    decision_time = datetime.now(tz=UTC)
     seq = build_sequence(
         account_id=account_id,
         events=events,

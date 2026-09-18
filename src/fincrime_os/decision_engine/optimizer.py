@@ -1,7 +1,8 @@
 from __future__ import annotations
+
+from collections.abc import Iterable
 from dataclasses import dataclass
 from itertools import product
-from typing import Iterable, Tuple
 
 from fincrime_os.decision_engine.cost_model import CostModelInputs
 
@@ -53,7 +54,7 @@ def optimize_segment(
     stats: SegmentOutcomeStats,
     cost_inputs: CostModelInputs,
 ) -> ThresholdPair:
-    best: Tuple[float, float, float] | None = None
+    best: tuple[float, float, float] | None = None
     for tc, td in product(GRID, GRID):
         if tc >= td:
             continue
@@ -103,9 +104,9 @@ def segment_stats_from_rows(rows: Iterable[dict]) -> dict[str, SegmentOutcomeSta
 def optimize_all(
     rows: Iterable[dict],
     cost_inputs: CostModelInputs,
-) -> dict[str, Tuple[float, float]]:
+) -> dict[str, tuple[float, float]]:
     stats = segment_stats_from_rows(rows)
-    result: dict[str, Tuple[float, float]] = {}
+    result: dict[str, tuple[float, float]] = {}
     for key, s in stats.items():
         pair = optimize_segment(s, cost_inputs)
         result[key] = (pair.t_challenge, pair.t_decline)

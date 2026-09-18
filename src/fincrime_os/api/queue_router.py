@@ -1,5 +1,6 @@
 from __future__ import annotations
-from datetime import datetime, timezone
+
+from datetime import UTC, datetime
 
 from fastapi import APIRouter
 
@@ -29,7 +30,7 @@ def queue() -> QueueResponse:
     ranked = _queue.build(alerts)
     workable = _queue.workable_slice(alerts)
     return QueueResponse(
-        generated_at=datetime.now(tz=timezone.utc).isoformat(),
+        generated_at=datetime.now(tz=UTC).isoformat(),
         capacity=_engine.investigator_daily_capacity,
         alerts_considered=len(alerts),
         alerts_returned=len(workable),

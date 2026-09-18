@@ -1,5 +1,6 @@
 from __future__ import annotations
-from datetime import datetime, timezone
+
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import APIRouter
@@ -138,8 +139,8 @@ def _artifact_age_seconds(kind: str) -> float | None:
     path = Path(artifact.path)
     if not path.exists():
         return None
-    mtime = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
-    return (datetime.now(tz=timezone.utc) - mtime).total_seconds()
+    mtime = datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
+    return (datetime.now(tz=UTC) - mtime).total_seconds()
 
 
 @router.get("/health/deep")
