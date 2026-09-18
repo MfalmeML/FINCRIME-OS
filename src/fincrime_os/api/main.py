@@ -228,3 +228,6 @@ _STATIC = Path(__file__).parent / "static"
 @app.get("/workspace", include_in_schema=False)
 def workspace() -> FileResponse:
     return FileResponse(_STATIC / "workspace.html")
+from fincrime_os.monitoring.quality_router import router as quality_router  # noqa: E402
+
+app.include_router(quality_router)
