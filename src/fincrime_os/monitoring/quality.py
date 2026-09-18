@@ -1,6 +1,7 @@
 from __future__ import annotations
-from dataclasses import dataclass, asdict, field
-from typing import Iterable
+
+from collections.abc import Iterable
+from dataclasses import asdict, dataclass, field
 
 
 @dataclass(frozen=True)
