@@ -24,7 +24,7 @@ def test_registry_loads_published_artifact(tmp_path, monkeypatch):
     assert r.version == "v-test"
     assert r.get("transaction_model") == "txn-v9"
     assert r.get("fusion_model") == "fusion-v5"
-    assert r.get("behavioral_model") == "unknown"
+    assert r.get("behavioral_model") == "behav-dev"
 
 
 def test_registry_as_dict_is_copy():
