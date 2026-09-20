@@ -9,6 +9,7 @@ from fincrime_os.features.contracts import (
     TransactionFeatures,
 )
 from fincrime_os.features.point_in_time import assert_not_future
+from fincrime_os.features.baseline_risk import customer_baseline_risk
 from fincrime_os.models.behavioral.model import BehavioralModel
 from fincrime_os.models.fusion.model import FusionModel
 from fincrime_os.models.graph.model import GraphModel
@@ -26,6 +27,7 @@ class SignalBundle:
     graph_confirmed_members: int
     combined_risk_score: float
     graph_degraded: bool
+    customer_baseline_risk: float
     model_versions: dict
 
 
@@ -64,7 +66,8 @@ class Pipeline:
             g = 0.0
             members = 0
 
-        combined = self.fusion.predict(t, b, s, g)
+        baseline_risk = customer_baseline_risk(baseline)
+        combined = self.fusion.predict(t, b, s, g, baseline_risk)
 
         return SignalBundle(
             transaction_risk=t,
@@ -74,5 +77,6 @@ class Pipeline:
             graph_confirmed_members=members,
             combined_risk_score=combined,
             graph_degraded=graph_degraded,
+            customer_baseline_risk=baseline_risk,
             model_versions=self.registry.as_dict(),
         )

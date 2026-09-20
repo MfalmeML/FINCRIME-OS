@@ -14,7 +14,7 @@ def test_version_endpoint():
     assert body["graph_override"]["min_confirmed_members"] == 2
     assert body["latency_budget_ms"] == 100
     assert "fusion_model" in body["model_versions"]
-    assert body["platform_version"] == "0.6.0"
+    assert body["platform_version"] == "0.6.1"
     assert "graph_snapshot_version" in body
     assert "replayed_events" in body
 
