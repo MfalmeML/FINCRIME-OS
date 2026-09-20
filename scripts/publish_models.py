@@ -1,15 +1,12 @@
 from __future__ import annotations
-
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 import argparse
 from datetime import datetime, timezone
 
 from fincrime_os.state.loader import publish
+from fincrime_os.state.model_discovery import COMPONENTS, discover_all
 
 
-DEFAULT_MODELS = {
+FALLBACK_VERSIONS = {
     "transaction_model": "txn-dev",
     "behavioral_model": "behav-dev",
     "temporal_model": "seq-dev",
@@ -20,11 +17,36 @@ DEFAULT_MODELS = {
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("--version", default=None)
+    p.add_argument("--version", default=None,
+                   help="registry artifact version; defaults to UTC timestamp")
     args = p.parse_args()
-    version = args.version or datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
-    path = publish("model_versions", version, {"models": DEFAULT_MODELS})
-    print(f"published model_versions version={version} -> {path}")
+
+    registry_version = args.version or datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
+
+    discovered = discover_all()
+    models: dict[str, str] = {}
+    trained_flag: dict[str, bool] = {}
+
+    for component in COMPONENTS:
+        d = discovered[component]
+        if d.trained and d.version:
+            models[component] = d.version
+            trained_flag[component] = True
+        else:
+            models[component] = FALLBACK_VERSIONS[component]
+            trained_flag[component] = False
+
+    payload = {
+        "models": models,
+        "trained": trained_flag,
+        "discovered_at": datetime.now(tz=timezone.utc).isoformat(),
+    }
+    path = publish("model_versions", registry_version, payload)
+
+    print(f"published model_versions version={registry_version} -> {path}")
+    for component, version in models.items():
+        marker = "trained" if trained_flag[component] else "fallback"
+        print(f"  {component}={version} ({marker})")
 
 
 if __name__ == "__main__":
