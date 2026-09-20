@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from dataclasses import dataclass, field
 
 from fincrime_os.state.loader import load_latest
@@ -34,10 +35,11 @@ def load_registry() -> ModelRegistry:
     if artifact is None:
         return ModelRegistry(version="unversioned-dev")
     p = artifact.payload
-    models = p.get("models") or dict(DEFAULT_MODELS)
+    published_models = p.get("models") or {}
+    models = {**DEFAULT_MODELS, **published_models}
     trained = p.get("trained") or {}
     return ModelRegistry(
         version=artifact.version,
-        models=dict(models),
+        models=models,
         trained={k: bool(v) for k, v in trained.items()},
     )
