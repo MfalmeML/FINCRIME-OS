@@ -1,6 +1,6 @@
 from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Optional
 
 import numpy as np
 
@@ -15,7 +15,7 @@ from fincrime_os.models.fusion.loader import (
 class FusionModel:
     version: str = "fusion-dev"
     weights: tuple[float, float, float, float] = (0.25, 0.25, 0.25, 0.25)
-    _loaded: Optional[LoadedFusionModel] = field(default=None, init=False, repr=False)
+    _loaded: LoadedFusionModel | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
         self._loaded = load_fusion_model()

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from fincrime_os.features.baseline_risk import customer_baseline_risk
 from fincrime_os.features.contracts import (
     BehavioralBaseline,
     EventSequence,
@@ -9,7 +10,6 @@ from fincrime_os.features.contracts import (
     TransactionFeatures,
 )
 from fincrime_os.features.point_in_time import assert_not_future
-from fincrime_os.features.baseline_risk import customer_baseline_risk
 from fincrime_os.models.behavioral.model import BehavioralModel
 from fincrime_os.models.fusion.model import FusionModel
 from fincrime_os.models.graph.model import GraphModel

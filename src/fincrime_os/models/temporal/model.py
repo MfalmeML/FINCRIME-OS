@@ -1,6 +1,6 @@
 from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Optional
 
 import numpy as np
 
@@ -15,7 +15,7 @@ from fincrime_os.models.temporal.loader import (
 @dataclass
 class TemporalModel:
     version: str = "seq-dev"
-    _loaded: Optional[LoadedTemporalModel] = field(default=None, init=False, repr=False)
+    _loaded: LoadedTemporalModel | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
         self._loaded = load_temporal_model()

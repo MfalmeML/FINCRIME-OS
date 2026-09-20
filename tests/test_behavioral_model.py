@@ -1,17 +1,15 @@
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
 
 import joblib
 import numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier
 
 import fincrime_os.models.behavioral.loader as loader_mod
-from fincrime_os.features.contracts import TransactionFeatures, BehavioralBaseline
+from fincrime_os.features.contracts import BehavioralBaseline, TransactionFeatures
 from fincrime_os.models.behavioral.features import feature_names, vectorize
 from fincrime_os.models.behavioral.model import BehavioralModel
 
-
-T0 = datetime(2026, 9, 1, 14, 0, tzinfo=timezone.utc)
+T0 = datetime(2026, 9, 1, 14, 0, tzinfo=UTC)
 
 
 def _tx(amount=100.0, hour=14, country="KE", device="D1", currency="KES", channel="app"):

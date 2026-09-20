@@ -1,11 +1,8 @@
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import Any
 
 import numpy as np
 
 from fincrime_os.features.contracts import TransactionFeatures
-
 
 CHANNELS = ["app", "web", "pos", "atm", "branch", "unknown"]
 COUNTRIES = ["KE", "NG", "ZA", "UG", "TZ", "GB", "US", "OTHER"]

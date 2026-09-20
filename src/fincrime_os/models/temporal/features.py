@@ -1,8 +1,8 @@
 from __future__ import annotations
+
 import numpy as np
 
 from fincrime_os.features.contracts import EventSequence
-
 
 KINDS = [
     "login",
