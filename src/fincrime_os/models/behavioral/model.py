@@ -1,10 +1,10 @@
 from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Optional
 
 import numpy as np
 
-from fincrime_os.features.contracts import TransactionFeatures, BehavioralBaseline
+from fincrime_os.features.contracts import BehavioralBaseline, TransactionFeatures
 from fincrime_os.models.behavioral.features import vectorize
 from fincrime_os.models.behavioral.loader import (
     LoadedBehavioralModel,
@@ -15,7 +15,7 @@ from fincrime_os.models.behavioral.loader import (
 @dataclass
 class BehavioralModel:
     version: str = "behav-dev"
-    _loaded: Optional[LoadedBehavioralModel] = field(default=None, init=False, repr=False)
+    _loaded: LoadedBehavioralModel | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
         self._loaded = load_behavioral_model()

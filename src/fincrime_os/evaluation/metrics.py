@@ -1,5 +1,6 @@
 from __future__ import annotations
-from dataclasses import dataclass, asdict, field
+
+from dataclasses import asdict, dataclass, field
 
 
 @dataclass(frozen=True)

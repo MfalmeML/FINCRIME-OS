@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from fincrime_os.features.contracts import BehavioralBaseline
 
 

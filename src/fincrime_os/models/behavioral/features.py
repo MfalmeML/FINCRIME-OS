@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 import numpy as np
 
-from fincrime_os.features.contracts import TransactionFeatures, BehavioralBaseline
+from fincrime_os.features.contracts import BehavioralBaseline, TransactionFeatures
 
 
 def _safe_ratio(a: float, b: float) -> float:
