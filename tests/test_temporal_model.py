@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta, timezone
-from pathlib import Path
+from datetime import UTC, datetime, timedelta
 
 import joblib
 import numpy as np
@@ -10,8 +9,7 @@ from fincrime_os.features.contracts import EventSequence
 from fincrime_os.models.temporal.features import feature_names, vectorize
 from fincrime_os.models.temporal.model import TemporalModel
 
-
-T0 = datetime(2026, 9, 1, 2, 0, tzinfo=timezone.utc)
+T0 = datetime(2026, 9, 1, 2, 0, tzinfo=UTC)
 
 
 def _events(kinds, gap_seconds=60):

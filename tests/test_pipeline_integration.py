@@ -1,7 +1,4 @@
-from datetime import datetime, timedelta, timezone
-
-import numpy as np
-import pytest
+from datetime import UTC, datetime, timedelta
 
 from fincrime_os.features.baseline_risk import customer_baseline_risk
 from fincrime_os.features.contracts import (
@@ -12,8 +9,7 @@ from fincrime_os.features.contracts import (
 )
 from fincrime_os.pipeline import Pipeline
 
-
-T0 = datetime(2026, 9, 15, 2, 13, tzinfo=timezone.utc)
+T0 = datetime(2026, 9, 15, 2, 13, tzinfo=UTC)
 
 
 def _tx(amount=8700.0, country="NG", channel="web", currency="USD"):

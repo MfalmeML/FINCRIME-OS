@@ -4,7 +4,6 @@ from pathlib import Path
 
 import fincrime_os.state.loader as loader
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
