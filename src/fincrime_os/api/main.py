@@ -85,6 +85,7 @@ def version() -> dict:
         },
         "latency_budget_ms": CFG.latency_budget_ms,
         "model_versions": _pipeline.model_versions(),
+        "model_trained": _pipeline.registry.trained,
         "replayed_events": len(_REPLAYED),
     }
 
