@@ -1,10 +1,11 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
 
 import joblib
 
-from fincrime_os.state.loader import STATE_ROOT
+import fincrime_os.state.loader as loader
 
 
 COMPONENTS = {
@@ -25,7 +26,7 @@ class DiscoveredModel:
 
 
 def _latest_in(subdir: str) -> Path | None:
-    d = STATE_ROOT / "models" / subdir
+    d = loader.STATE_ROOT / "models" / subdir
     if not d.exists():
         return None
     files = sorted(
