@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime as _dt, timedelta as _td
 from pathlib import Path
 
 from fastapi import APIRouter
@@ -12,6 +12,7 @@ from fincrime_os.api.schemas import (
     DriftRequest,
     DriftResponse,
     DriftSignalOut,
+    ShadowDivergenceOut,
 )
 from fincrime_os.config import default_config
 from fincrime_os.decision_engine.cost_loader import load_cost_inputs
@@ -24,6 +25,7 @@ from fincrime_os.drift.canary import (
 from fincrime_os.drift.detector import DriftDetector
 from fincrime_os.drift.snapshot_loader import load_drift_snapshot
 from fincrime_os.monitoring.runtime_metrics import get_metrics
+from fincrime_os.monitoring.shadow import read_day
 from fincrime_os.state.graph_snapshot import is_fresh, load_snapshot, snapshot_age_seconds
 from fincrime_os.state.loader import STATE_ROOT, load_latest
 from fincrime_os.state.model_registry import load_registry
@@ -198,3 +200,33 @@ def health_deep() -> dict:
         },
         "state_root": str(STATE_ROOT),
     }
+
+
+@router.get("/shadow/divergence", response_model=ShadowDivergenceOut)
+def shadow_divergence(window_days: int = 1) -> ShadowDivergenceOut:
+    today = _dt.now(tz=UTC).date()
+    rows: list[dict] = []
+    for offset in range(window_days):
+        day = (today - _td(days=offset)).strftime("%Y-%m-%d")
+        rows.extend(read_day(day))
+
+    by_live: dict[str, int] = {}
+    by_shadow: dict[str, int] = {}
+    divergent = 0
+    for r in rows:
+        live = r.get("live_decision", "UNKNOWN")
+        shadow = r.get("shadow_decision", "UNKNOWN")
+        by_live[live] = by_live.get(live, 0) + 1
+        by_shadow[shadow] = by_shadow.get(shadow, 0) + 1
+        if r.get("divergence"):
+            divergent += 1
+
+    total = len(rows)
+    return ShadowDivergenceOut(
+        window_days=window_days,
+        total=total,
+        divergent=divergent,
+        divergence_rate=(divergent / total) if total else 0.0,
+        by_live_decision=by_live,
+        by_shadow_decision=by_shadow,
+    )

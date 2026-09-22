@@ -198,3 +198,12 @@ class QualityResponse(BaseModel):
     overall_miss_rate: float = 0.0
     overall_false_decline_rate: float = 0.0
     segments: list[SegmentQualityOut] = []
+
+
+class ShadowDivergenceOut(BaseModel):
+    window_days: int
+    total: int
+    divergent: int
+    divergence_rate: float
+    by_live_decision: dict[str, int]
+    by_shadow_decision: dict[str, int]
