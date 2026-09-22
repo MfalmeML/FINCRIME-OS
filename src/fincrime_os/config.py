@@ -24,6 +24,12 @@ class AutoRebuildConfig:
 
 
 @dataclass(frozen=True)
+class ShadowConfig:
+    enabled: bool = False
+    log_decisions: bool = True
+
+
+@dataclass(frozen=True)
 class DriftConfig:
     feature_threshold: float = 0.20
     prediction_threshold: float = 0.20
@@ -47,6 +53,7 @@ class PlatformConfig:
     graph_override: GraphOverrideConfig = GraphOverrideConfig()
     graph_freshness: GraphFreshnessConfig = GraphFreshnessConfig()
     auto_rebuild: AutoRebuildConfig = AutoRebuildConfig()
+    shadow: ShadowConfig = ShadowConfig()
     drift: DriftConfig = DriftConfig()
     threshold_table: ThresholdTable = ThresholdTable(version="unversioned-dev")
     latency_budget_ms: int = 100
