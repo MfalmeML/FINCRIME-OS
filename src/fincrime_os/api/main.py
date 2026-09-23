@@ -40,7 +40,7 @@ from fincrime_os.rollout.resolver import effective_stage
 configure_logging()
 log = logging.getLogger("fincrime_os.api")
 
-app = FastAPI(title="FINCRIME OS", version="0.7.2")
+app = FastAPI(title="FINCRIME OS", version="0.8.1")
 
 from fincrime_os.state.graph_snapshot import load_snapshot  # noqa: E402
 
