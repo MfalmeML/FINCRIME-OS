@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import List, Literal
 
 from pydantic import BaseModel, Field
 
@@ -207,3 +207,16 @@ class ShadowDivergenceOut(BaseModel):
     divergence_rate: float
     by_live_decision: dict[str, int]
     by_shadow_decision: dict[str, int]
+
+
+class SegmentRolloutOut(BaseModel):
+    segment_key: str
+    stage: str
+    percentage: float
+
+
+class RolloutResponse(BaseModel):
+    version: str
+    default_stage: str
+    default_percentage: float
+    segments: List[SegmentRolloutOut]
