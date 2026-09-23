@@ -12,6 +12,8 @@ from fincrime_os.api.schemas import (
     DriftRequest,
     DriftResponse,
     DriftSignalOut,
+    RolloutResponse,
+    SegmentRolloutOut,
     ShadowDivergenceOut,
 )
 from fincrime_os.config import default_config
@@ -26,6 +28,7 @@ from fincrime_os.drift.detector import DriftDetector
 from fincrime_os.drift.snapshot_loader import load_drift_snapshot
 from fincrime_os.monitoring.runtime_metrics import get_metrics
 from fincrime_os.monitoring.shadow import read_day
+from fincrime_os.rollout.loader import load_rollout
 from fincrime_os.state.graph_snapshot import is_fresh, load_snapshot, snapshot_age_seconds
 from fincrime_os.state.loader import STATE_ROOT, load_latest
 from fincrime_os.state.model_registry import load_registry
@@ -229,4 +232,22 @@ def shadow_divergence(window_days: int = 1) -> ShadowDivergenceOut:
         divergence_rate=(divergent / total) if total else 0.0,
         by_live_decision=by_live,
         by_shadow_decision=by_shadow,
+    )
+
+
+@router.get("/rollout/current", response_model=RolloutResponse)
+def rollout_current() -> RolloutResponse:
+    table = load_rollout()
+    return RolloutResponse(
+        version=table.version,
+        default_stage=table.default_stage.value,
+        default_percentage=table.default_percentage,
+        segments=[
+            SegmentRolloutOut(
+                segment_key=k,
+                stage=v.stage.value,
+                percentage=v.percentage,
+            )
+            for k, v in table.segments.items()
+        ],
     )
