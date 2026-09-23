@@ -28,6 +28,14 @@ from fincrime_os.ingestion.replay import FileReplaySource
 from fincrime_os.logging_config import configure_logging
 from fincrime_os.monitoring.runtime_metrics import get_metrics  # noqa: E402
 from fincrime_os.pipeline import Pipeline
+from fincrime_os.rollout.contracts import (
+    SignalStage,
+    stage_allows_behavioral,
+    stage_allows_graph,
+    stage_allows_temporal,
+)
+from fincrime_os.rollout.loader import load_rollout
+from fincrime_os.rollout.resolver import effective_stage
 
 configure_logging()
 log = logging.getLogger("fincrime_os.api")
@@ -40,6 +48,7 @@ CFG = default_config()
 _pipeline = Pipeline()
 _explainer = Explainer()
 _graph_snapshot = load_snapshot()
+_rollout = load_rollout()
 
 REPLAY_PATH = Path("data/events.jsonl")
 _REPLAYED: list[AccountEvent] = (
@@ -144,10 +153,39 @@ def decision(req: DecisionRequest) -> DecisionResponse:
     bundle = _pipeline.score(tx, baseline, sequence, graph_features)
     get_metrics().record_decision(graph_degraded=bundle.graph_degraded)
 
+    rollout_row = _rollout.resolve(req.segment.customer_tier)
+    stage = effective_stage(req.transaction_id, rollout_row)
+
+    # Signal-stage gating: zero out signals the current stage does not include.
+    # The pipeline still runs all models; gating only affects what the fusion
+    # layer and decision engine consume. This is the mechanism that lets a
+    # segment go from transaction-only to full rollout without redeploying.
+    gated_transaction = bundle.transaction_risk
+    gated_behavioral = (
+        bundle.behavioral_anomaly_score if stage_allows_behavioral(stage) else 0.0
+    )
+    gated_sequence = (
+        bundle.sequence_risk_score if stage_allows_temporal(stage) else 0.0
+    )
+    gated_graph = bundle.graph_ring_score if stage_allows_graph(stage) else 0.0
+    gated_graph_members = (
+        bundle.graph_confirmed_members if stage_allows_graph(stage) else 0
+    )
+
+    from fincrime_os.features.baseline_risk import customer_baseline_risk as _cbr
+
+    gated_combined = _pipeline.fusion.predict(
+        gated_transaction,
+        gated_behavioral,
+        gated_sequence,
+        gated_graph,
+        _cbr(baseline),
+    )
+
     decision, reason = decide(
-        combined_risk_score=req.combined_risk_score,
-        graph_ring_score=req.graph_ring_score,
-        graph_confirmed_members=req.graph_confirmed_members,
+        combined_risk_score=gated_combined,
+        graph_ring_score=gated_graph,
+        graph_confirmed_members=gated_graph_members,
         segment_key=req.segment.customer_tier,
         graph_cfg=CFG.graph_override,
         threshold_table=CFG.threshold_table,
